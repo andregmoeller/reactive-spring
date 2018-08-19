@@ -11,14 +11,6 @@ import java.time.Instant;
 
 @RestController
 public class GreetingsRestController {
-    @GetMapping("/greetings")
-    Publisher<Greeting> greetings() {
-        Flux<Greeting> greetingFlux = Flux
-                .<Greeting>generate(sink -> sink.next(new Greeting("Hello, world!")))
-                .take(1000);
-        return greetingFlux;
-    }
-
     @GetMapping(value = "/sse", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     Publisher<Greeting> sseGreeting() {
         Publisher<Greeting> delayPublisher = Flux
