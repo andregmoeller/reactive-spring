@@ -2,8 +2,6 @@ package com.github.andregmoeller.reactivedata;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.reactivestreams.Subscriber;
-import org.reactivestreams.Subscription;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
@@ -37,29 +35,7 @@ class DataInitializer implements ApplicationRunner {
         Flux<String> names = Flux.just("Pete", "Julie", "Josh", "Marcin", "Phil");
         Flux<Reservation> reservationFlux = names.map(name -> new Reservation(null, name));
         Flux<Reservation> saveFlux = reservationFlux.flatMap(reservationRepository::save);
-        saveFlux.subscribe(new Subscriber<Reservation>() {
-            @Override
-            public void onSubscribe(Subscription s) {
-                log.info("onSubscribe( " + s.toString() + " )");
-                s.request(10);
-            }
-
-            @Override
-            public void onNext(Reservation reservation) {
-                log.info("new reservation: " + reservation.toString());
-            }
-
-            @Override
-            public void onError(Throwable t) {
-                log.info("ooops!");
-                log.info(t.toString());
-            }
-
-            @Override
-            public void onComplete() {
-                log.info("onComplete");
-            }
-        });
+        saveFlux.subscribe(reservation -> log.info("new reservation: " + reservation.toString()));
     }
 }
 
