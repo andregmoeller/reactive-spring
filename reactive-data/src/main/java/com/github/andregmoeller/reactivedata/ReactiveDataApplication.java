@@ -32,10 +32,15 @@ class DataInitializer implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) {
-        Flux<String> names = Flux.just("Pete", "Julie", "Josh", "Marcin", "Phil");
-        Flux<Reservation> reservationFlux = names.map(name -> new Reservation(null, name));
-        Flux<Reservation> saveFlux = reservationFlux.flatMap(reservationRepository::save);
-        saveFlux.subscribe(reservation -> log.info("new reservation: " + reservation.toString()));
+        reservationRepository
+                .deleteAll()
+                .thenMany(
+                        Flux.just("Pete", "Julie", "Josh", "Marcin", "Phil")
+                                .map(name -> new Reservation(null, name))
+                                .flatMap(reservationRepository::save)
+                )
+                .thenMany(reservationRepository.findAll())
+                .subscribe(reservation -> log.info("new reservation: " + reservation.toString()));
     }
 }
 
